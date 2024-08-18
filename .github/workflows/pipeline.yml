@@ -1,0 +1,28 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main, master]
+    types: 
+      - opened 
+      - synchronize 
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci
+      - name: Check style
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Run playWright test
+        run: npx playwright install --with-deps && npm run test:e2e
