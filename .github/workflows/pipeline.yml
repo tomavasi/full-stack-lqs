@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 'Change ownership build file'
-        run: chmod -v +x build_step.sh
+        run: chmod -v +x build.sh
       - name: Deploy to production
         uses: johnbeynon/render-deploy-action@v0.0.8
         with:
