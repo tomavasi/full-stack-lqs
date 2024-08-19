@@ -26,3 +26,19 @@ jobs:
         run: npm run build
       - name: Run playWright test
         run: npx playwright install --with-deps && npm run test:e2e
+
+  deploy:
+    needs: build_and_test
+    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'Change ownership build file'
+        run: chmod -v +x build_step.sh
+      - name: Deploy to production
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.REDNER_API_KEY }}
+          # wait-for-success: true
+
