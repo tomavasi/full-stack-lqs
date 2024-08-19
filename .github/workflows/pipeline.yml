@@ -26,6 +26,18 @@ jobs:
         run: npm run build
       - name: Run playWright test
         run: npx playwright install --with-deps && npm run test:e2e
+    
+  notify-build:
+    needs: build_and_test
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Build Success
+        uses: rjstone/discord-webhook-notify@v1
+        if: failure()
+        with:
+          severity: warn
+          details: Build failed
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
   deploy:
     needs: build_and_test
@@ -40,5 +52,17 @@ jobs:
         with:
           service-id: ${{ secrets.RENDER_SERVICE_ID }}
           api-key: ${{ secrets.REDNER_API_KEY }}
-          wait-for-success: true
+          # wait-for-success: true
+  
+  notify-deploy:
+    needs: deploy
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Deployment Success
+        uses: rjstone/discord-webhook-notify@v1
+        if: success()
+        with:
+            severity: info
+            details: Deplyoment successful
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
