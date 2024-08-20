@@ -1,6 +1,14 @@
-const allowedOrigins = [
-    "http://localhost:3000"
-]
+let allowedOrigins;
+
+if (process.env.NODE_ENV === 'development') {
+    allowedOrigins = [
+        "http://localhost:5555"
+    ]
+} else {
+    allowedOrigins = [
+        "https://full-stack-lqs.onrender.com"
+    ]
+}
 
 export const corsOptions = {
     origin : (origin, callback) =>{
