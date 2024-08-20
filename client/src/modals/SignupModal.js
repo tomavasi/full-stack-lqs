@@ -52,7 +52,7 @@ const SignupModal = ({ signUpModal, setSignUpModal, setLoginModal }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const { data, status } = await useBackEnd(`${baseUrl}/api/auth/register`, user, pwd, email)
+    const { data, status } = await useRegister(`${baseUrl}/api/auth/register`, user, pwd, email)
     if (status === 201) {
       setSignUpModal(false); setLoginModal(true)
     } else if (status === 400 || status === 409) {
