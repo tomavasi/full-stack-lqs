@@ -6,6 +6,7 @@ import { useContext } from 'react';
 import { ShopContext } from '../context/shop-context';
 import { baseUrl } from '../baseUrl';
 import { useLogin } from '../api/useBackEnd';
+import { useNavigate } from 'react-router-dom';
 
 const LoginModal = ({ loginModal, setLoginModal, setSignUpModal }) => {
 
@@ -14,15 +15,16 @@ const LoginModal = ({ loginModal, setLoginModal, setSignUpModal }) => {
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("")
   const { setLogin } = useContext(ShopContext);
+  const navigate = useNavigate()
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { data, status } = await useLogin(`${baseUrl}/api/auth/login`, user, pwd)
     if (status === 200) {
-      console.log(data)
       window.localStorage.setItem("access_token", data.accessToken)
-      window.localStorage.setItem("userID", data.userID)
       setLoginModal(false)
       setLogin(true)
+      navigate("/")
     }
   }
 

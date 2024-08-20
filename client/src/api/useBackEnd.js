@@ -43,3 +43,14 @@ export async function useMe(url, token) {
         return { data, status }
     }
 }
+
+export async function useRefresh(url) {
+    try {
+        const { data, status } = await axios.get(url)
+        return { data, status }
+    } catch ({ response }) {
+        const data = response.data
+        const status = response.status
+        return { data, status }
+    }
+}
