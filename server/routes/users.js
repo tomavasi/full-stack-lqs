@@ -7,40 +7,52 @@ import { JWTverifier } from "../middleware/JWTverifier.js";
 
 const router = express.Router()
 
-router.get("/all", JWTverifier, async(req,res) =>{
-    try{
+router.get("/all", JWTverifier, async (req, res) => {
+    try {
         const users = await UserModel.find().select("-password").lean()
-        if (!users?.length){
-            return res.status(400).json({message: "Users not found"})
+        if (!users?.length) {
+            return res.status(400).json({ message: "Users not found" })
         }
         res.json(users)
-    } catch(err) {
+    } catch (err) {
         console.log(err)
-        res.status(500).send({message: err.message});
+        res.status(500).send({ message: err.message });
     }
 })
-router.post("/register", async (req, res)=>{
- try{
-    const {username, password, email} = req.body;
-    if (!username || !password || !email) {
-        return res.status(400).send({message: "All fields are required"})
+router.get('/me', JWTverifier, async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ _id: req.id })
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized" })
+        }
+        res.status(200).send({ user: user.username})
+    } catch (err) {
+        console.log(err)
+        res.status(500).send({ message: err.message });
     }
-    const user = await UserModel.findOne({username})
-    if (user) {
-        return res.status(409).send({message: "User already exists"})
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new UserModel({username, password:hashedPassword, email});
-    await newUser.save();
+})
+router.post("/register", async (req, res) => {
+    try {
+        const { username, password, email } = req.body;
+        if (!username || !password || !email) {
+            return res.status(400).send({ message: "All fields are required" })
+        }
+        const user = await UserModel.findOne({ username })
+        if (user) {
+            return res.status(409).send({ message: "User already exists" })
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new UserModel({ username, password: hashedPassword, email });
+        await newUser.save();
 
-    res.status(201).json({message: "User registered successfully"})
-} catch (err){
-    console.log(err)
-    res.status(500).send({message: err.message});
- }
+        res.status(201).json({ message: "User registered successfully" })
+    } catch (err) {
+        console.log(err)
+        res.status(500).send({ message: err.message });
+    }
 });
 
 
-export {router as userRouter};
+export { router as userRouter };
 
 

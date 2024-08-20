@@ -2,7 +2,8 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { UserModel } from "../models/UserModel.js";
-
+import dotenv from 'dotenv'
+dotenv.config()
 
 const router = express.Router()
 
@@ -26,7 +27,7 @@ router.post("/login", async (req, res) => {
             id: user._id,
             roles: user.roles
         }, process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: '3000s' }
+            { expiresIn: '10s' }
         )
         const refreshToken = jwt.sign({
             id: user._id
@@ -64,7 +65,6 @@ router.get("/refresh", async (req, res) => {
                 if (err) {
                     return res.status(403).json({ message: "Forbidden" })
                 }
-
                 const user = await UserModel.findOne({ _id: decoded.id })
                 if (!user) {
                     return res.status(401).json({ message: "Unauthorized" })
@@ -73,7 +73,7 @@ router.get("/refresh", async (req, res) => {
                     id: user._id,
                     roles: user.roles
                 }, process.env.ACCESS_TOKEN_SECRET,
-                    { expiresIn: '30s' }
+                    { expiresIn: '3000s' }
                 )
                 res.send({ accessToken })
             }
