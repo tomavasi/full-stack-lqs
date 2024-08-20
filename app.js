@@ -9,6 +9,7 @@ import middleware from 'webpack-dev-middleware';
 import hotMiddleware from 'webpack-hot-middleware';
 import webpackConf from './webpack.config.js'
 import backend from './server/index.js'
+import { getFromCache, setToCache, clearCache } from './cache.js';
 
 const app = express();
 
@@ -19,14 +20,34 @@ const inProduction = process.env.NODE_ENV === 'production'
 
 const port = process.env.PORT || 5555;
 app.use('/api', (req, res, next) => backend(req, res, next))
-const watcher = chokidar.watch('server') // Watch server folder
+
+const watcher = chokidar.watch('server');
+
 watcher.on('ready', () => {
-    watcher.on('all', () => {
-        Object.keys(require.cache).forEach((id) => {
-            if (id.includes('server')) delete require.cache[id] // Delete all require caches that point to server folder (*)
-        })
-    })
-})
+  watcher.on('all', () => {
+    Object.keys(import.meta.cache).forEach((id) => {
+      if (id.includes('server')) {
+        // Clear the cache for the module
+        clearCache(id);
+      }
+    });
+  });
+});
+
+watcher.on('change', (path) => {
+  const moduleId = `./${path.replace(/\\/g, '/')}`;
+  if (getFromCache(moduleId)) {
+    // Retrieve the module from the cache
+    const module = getFromCache(moduleId);
+    console.log(module.default);
+  } else {
+    // Import the module and cache it
+    import(moduleId).then((module) => {
+      setToCache(moduleId, module);
+      console.log(module.default);
+    });
+  }
+});
 
 /**
  * For frontend use hot loading when in development, else serve the static content

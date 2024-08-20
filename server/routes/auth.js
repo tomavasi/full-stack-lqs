@@ -27,7 +27,7 @@ router.post("/login", async (req, res) => {
             id: user._id,
             roles: user.roles
         }, process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: '3000s' }
+            { expiresIn: '600s' }
         )
         const refreshToken = jwt.sign({
             id: user._id
@@ -36,7 +36,7 @@ router.post("/login", async (req, res) => {
 
         res.cookie("jwt", refreshToken, {
             httpOnly: true,
-            secure: false,
+            secure: true,
             sameSite: 'None',
             maxAge: 7 * 24 * 360 * 1000
         })
@@ -50,18 +50,15 @@ router.post("/login", async (req, res) => {
 router.get("/refresh", async (req, res) => {
     try {
         const cookies = req.cookies
-
+        console.log(cookies)        
         if (!cookies?.jwt) {
             return res.status(401).json({ message: "Unauthorized" })
         }
-
         const refreshToken = cookies.jwt
-
         jwt.verify(
             refreshToken,
             process.env.REFRESH_TOKEN_SECRET,
             async (err, decoded) => {
-                console.log(decoded)
                 if (err) {
                     return res.status(403).json({ message: "Forbidden" })
                 }
@@ -73,7 +70,7 @@ router.get("/refresh", async (req, res) => {
                     id: user._id,
                     roles: user.roles
                 }, process.env.ACCESS_TOKEN_SECRET,
-                    { expiresIn: '3000s' }
+                    { expiresIn: '600s' }
                 )
                 res.send({ accessToken })
             }
@@ -87,6 +84,7 @@ router.get("/refresh", async (req, res) => {
 
 router.delete("/logout", async (req, res) => {
     const cookies = req.cookies;
+    console.log(cookies)
     if (!cookies?.jwt) {
         return res.sendStatus(204)
     }
