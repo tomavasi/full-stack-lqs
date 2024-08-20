@@ -25,7 +25,7 @@ router.get('/me', JWTverifier, async (req, res) => {
         if (!user) {
             return res.status(401).json({ message: "Unauthorized" })
         }
-        res.status(200).send({ user: user.username})
+        return res.status(200).json({ user: user.username})
     } catch (err) {
         console.log(err)
         res.status(500).send({ message: err.message });
