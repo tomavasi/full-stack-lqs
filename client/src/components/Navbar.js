@@ -20,7 +20,7 @@ export default function Navbar({ setLoginModal, setSignUpModal }) {
 
     async function logout() {
         try {
-            await axios.delete(`${baseUrl}/logout`)
+            await axios.delete(`${baseUrl}/api/auth/logout`)
             localStorage.removeItem("access_token")
             setLogin(false)
         } catch (err) {
